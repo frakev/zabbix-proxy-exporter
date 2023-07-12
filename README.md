@@ -1,4 +1,4 @@
-# ZAbbix Proxy Exporter
+# Zabbix Proxy Exporter
 
 ## Description
 Zabbix Proxy Exporter reads into database Zabbix Proxy to retrieve informations.

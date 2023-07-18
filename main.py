@@ -16,8 +16,18 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class ZabbixProxyExporter():
-	con = sqlite3.connect("zabbix_proxy.db", check_same_thread=False)
-	cur = con.cursor()
+
+	def __init__(self):
+		with open("/etc/zabbix/zabbix_proxy.conf","r") as conf_proxy:
+			for num, line in enumerate(conf_proxy, 1):
+				if 'DBName' in line:
+					line = line.strip()
+					self.db = line[7:]
+
+	def open_database(self):
+		logging.info("Initialize database")
+		self.con = sqlite3.connect(self.db, check_same_thread=False)
+		self.cur = self.con.cursor()
 
 	def get_proxy_queue(self):
 		logger.info("Get proxy queue informations")
@@ -45,16 +55,20 @@ class ZabbixProxyExporter():
 			zabbix_proxy_hosts.add_metric("", nb[0])
 		return zabbix_proxy_hosts
 
+	def close_db(self):
+		logging.info("Database closed")
+		self.con.close()
+
 	def collect(self):
+
+		self.open_database()
 		logger.info("Collect proxy stats")
 		proxy_queue = self.get_proxy_queue()
 		yield self.set_proxy_queue(proxy_queue)
 		proxy_hosts = self.get_proxy_hosts()
 		yield self.set_proxy_hosts(proxy_hosts)
 		logger.info("Done proxy stats")
-
-	#con.close()
-
+		self.close_db()
 
 
 if __name__ == "__main__":
@@ -66,4 +80,3 @@ if __name__ == "__main__":
 
 	while True:
 		time.sleep(30)
-

@@ -37,7 +37,7 @@ class ZabbixProxyExporter():
 					line = line.strip()
 					self.proxy = line[9:]
 
-	def open_database(self):
+	def __open_database(self):
 		logging.info("Initialize database")
 		self.con = sqlite3.connect(self.db, check_same_thread=False)
 		self.cur = self.con.cursor()
@@ -94,13 +94,26 @@ class ZabbixProxyExporter():
 			metric.add_metric([self.proxy], d[0])
 		return metric
 
-	def close_db(self):
+	def get_items_type(self):
+		logger.info("Get number of enabled items by type")
+		res = self.cur.execute('select type, count(*) from items group by type')
+		return res
+
+	def set_items_type(self, data):
+		metric = GaugeMetricFamily(
+			"zbx_items_by_type", "Number of items by type.", labels=["type", "proxy"]
+		)
+		for d in data:
+			metric.add_metric([str(d[0]),self.proxy], d[1])
+		return metric
+
+	def __close_db(self):
 		logging.info("Database closed")
 		self.con.close()
 
 	def collect(self):
 		
-		self.open_database()
+		self.__open_database()
 		logger.info("Collect proxy informations")
 		data = self.get_proxy_queue()
 		yield self.set_proxy_queue(data)
@@ -110,8 +123,10 @@ class ZabbixProxyExporter():
 		yield self.set_value_type_items(data)
 		data = self.get_number_enabled_items()
 		yield self.set_number_enabled_items(data)
+		data = self.get_items_type()
+		yield self.set_items_type(data)
 		logger.info("Done proxy informations")
-		self.close_db()
+		self.__close_db()
 	
 
 if __name__ == "__main__":

@@ -9,16 +9,24 @@ from prometheus_client.metrics_core import (
 )
 from prometheus_client.core import REGISTRY
 from prometheus_client.utils import INF
+from optparse import OptionParser
+
+parser = OptionParser()
 
 format_string = "level=%(levelname)s datetime=%(asctime)s %(message)s"
 logging.basicConfig(encoding="utf-8", level=logging.INFO, format=format_string)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+parser.add_option("--config", dest="config", help="Path to the Zabbix Proxy configuration file (Default: /etc/zabbix/zabbix_proxy.conf).", default="/etc/zabbix/zabbix_proxy.conf")
+
+(options, domain) = parser.parse_args()
+config = options.config
+
 class ZabbixProxyExporter():
 
 	def __init__(self):
-		with open("zabbix_proxy.conf","r") as conf_proxy:
+		with open(config,"r") as conf_proxy:
 			for num, line in enumerate(conf_proxy, 1):
 				if 'DBName' in line:
 					line = line.strip()

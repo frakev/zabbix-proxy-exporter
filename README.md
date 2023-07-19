@@ -9,7 +9,7 @@ You will need [Python 3.6+](https://www.python.org/) or later and prometheus-cli
 ## Usage
 ````
 > python3 main.py --config=/etc/zabbix/zabbix_proxy.conf
-```
+````
 
 ## TODO
 - Read Zabbix configuration file to connect to the database

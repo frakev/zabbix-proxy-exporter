@@ -18,7 +18,7 @@ logger.setLevel(logging.INFO)
 class ZabbixProxyExporter():
 
 	def __init__(self):
-		with open("/etc/zabbix/zabbix_proxy.conf","r") as conf_proxy:
+		with open("zabbix_proxy.conf","r") as conf_proxy:
 			for num, line in enumerate(conf_proxy, 1):
 				if 'DBName' in line:
 					line = line.strip()
@@ -28,6 +28,19 @@ class ZabbixProxyExporter():
 		logging.info("Initialize database")
 		self.con = sqlite3.connect(self.db, check_same_thread=False)
 		self.cur = self.con.cursor()
+
+	def get_value_type_items(self):
+		logger.info("Get number of items by value_type")
+		res = self.cur.execute("select value_type, count(*) from items group by value_type;")
+		return res
+
+	def set_value_type_items(self, items):
+		i = GaugeMetricFamily(
+			"zabbix_items_value_type", "Count items by value_type", labels=["value_type"]
+		)
+		for item in items:
+			i.add_metric(f"{item[0]}", item[1])
+		return i
 
 	def get_proxy_queue(self):
 		logger.info("Get proxy queue informations")
@@ -67,6 +80,8 @@ class ZabbixProxyExporter():
 		yield self.set_proxy_queue(proxy_queue)
 		proxy_hosts = self.get_proxy_hosts()
 		yield self.set_proxy_hosts(proxy_hosts)
+		item_vt = self.get_value_type_items()
+		yield self.set_value_type_items(item_vt)
 		logger.info("Done proxy stats")
 		self.close_db()
 

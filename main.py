@@ -20,9 +20,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 parser.add_option("--config", dest="config_file", help="Path to the Zabbix Proxy configuration file (Default: /etc/zabbix/zabbix_proxy.conf).", default="/etc/zabbix/zabbix_proxy.conf")
+parser.add_option("--port", dest="port", help="Listen port.", default=9200, type="int")
 
 (options, domain) = parser.parse_args()
 config_file = options.config_file
+port = options.port
 
 class ZabbixProxyExporter():
 
@@ -132,7 +134,7 @@ class ZabbixProxyExporter():
 if __name__ == "__main__":
 	collector = ZabbixProxyExporter()
 
-	start_http_server(9200)
+	start_http_server(port)
 
 	REGISTRY.register(collector)
 

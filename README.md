@@ -42,7 +42,10 @@ zbx_items_by_type{proxy="Zabbix Proxy",type="18"} 13.0
 ````
 
 
-## TODO
+## :white_check_mark: TODO
 - [x] Read Zabbix configuration file to connect to the database
 - [ ] Get processes informations
 and other things :)
+
+## :star: Contributing
+Feel free to contribute to the project by opening an issue if you find a bug or a pull request to add a feature.

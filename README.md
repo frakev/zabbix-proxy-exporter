@@ -6,7 +6,7 @@ Zabbix Proxy Exporter reads into database Zabbix Proxy to retrieve informations.
 :exclamation: It works only with SQLite database for now :exclamation:
 
 ## Prerequisites
-You will need [Python 3.6+](https://www.python.org/) or later and prometheus-client==0.14.1
+You will need [Python 3.9+](https://www.python.org/) or later and prometheus-client==0.14.1
 
 ## Usage
 ````
